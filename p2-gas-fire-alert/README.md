@@ -1,92 +1,111 @@
-# Gas & Fire Safety Alert System 🚨
+🔥 Gas & Fire Safety Alert System
 
-## Project Overview
-The Gas & Fire Safety Alert System is an IoT-based safety device that detects gas leakage and fire simultaneously using an MQ-2 gas sensor and a flame sensor. The system provides three alert levels using LEDs and a buzzer to improve home safety.
+📌 Project Description
 
-## Objective
-To design a safety monitoring system that can:
-- Detect LPG/gas leakage
-- Detect fire/flame
-- Provide visual and audio alerts
-- Display real-time status through Serial Monitor
+This project is a dual-sensor safety alert system built using Arduino Uno. It detects gas leakage using an MQ-2 gas sensor and fire/flame detection using a flame sensor. The system provides three alert levels using LEDs and a buzzer.
 
-## Components Used
+---
+
+🛠 Components Used
+
 - Arduino Uno R3
 - MQ-2 Gas Sensor
 - Flame Sensor
 - Active Buzzer
-- Red LED
-- Yellow LED
 - Green LED
+- Yellow LED
+- Red LED
 - 220Ω Resistors
 - Breadboard
 - Jumper Wires
+- USB Cable
 
-## Circuit Connections
+---
 
-### MQ-2 Gas Sensor
-| MQ-2 Pin | Arduino Pin |
-|---|---|
-| VCC | 5V |
-| GND | GND |
-| AOUT | A0 |
+🔌 Wiring Summary
 
-### Flame Sensor
-| Flame Sensor Pin | Arduino Pin |
-|---|---|
-| VCC | 5V |
-| GND | GND |
-| DO | D7 |
-| AO | A1 (Optional) |
+MQ-2 Gas Sensor
 
-### Output Devices
-| Component | Arduino Pin |
-|---|---|
-| Green LED | D10 |
-| Yellow LED | D11 |
-| Red LED | D12 |
-| Buzzer | D9 |
+Sensor Pin| Arduino Pin
+VCC| 5V
+GND| GND
+AOUT| A0
 
-## Working Principle
+Flame Sensor
 
-1. The MQ-2 sensor continuously measures gas concentration.
-2. The gas value is converted into percentage (0-100%).
-3. The flame sensor detects fire using its digital output.
-4. According to the sensor values, the system shows three alert levels:
+Sensor Pin| Arduino Pin
+VCC| 5V
+GND| GND
+DO| D7
+AO| A1 (Optional)
 
-### Alert Levels
+LED Connections
 
-| Condition | Output |
-|---|---|
-| Gas < 30% and no flame | SAFE - Green LED |
-| Gas 30-60% | WARNING - Yellow LED + Slow Beep |
-| Gas > 60% or Flame detected | DANGER - Red LED + Continuous Alarm |
+Component| Arduino Pin
+Green LED| D10
+Yellow LED| D11
+Red LED| D12
 
-## Flame Sensor Logic
-The flame sensor used in this project is active-low.
+Buzzer
 
-- Digital Output LOW = Flame detected
-- Digital Output HIGH = No flame detected
+Buzzer Pin| Arduino Pin
+Positive (+)| D9
+Negative (-)| GND
 
-## MQ-2 Warm-up Requirement
-The MQ-2 gas sensor requires 1-2 minutes of warm-up time after powering ON because its sensing element needs time to stabilize and provide accurate readings.
+---
 
-## Serial Monitor Output Example
+▶️ How to Run
+
+1. Connect all components according to the wiring diagram.
+2. Open the Arduino IDE.
+3. Select Arduino Uno board and correct COM port.
+4. Upload the "gas_fire_alert.ino" code.
+5. Power ON the Arduino.
+6. Wait for MQ-2 sensor warm-up (1–2 minutes).
+7. Open Serial Monitor with 9600 baud rate to view sensor status.
+
+---
+
+⚙ Working
+
+- MQ-2 sensor reads gas concentration and converts it into percentage (0–100%).
+- Flame sensor detects fire using active-low digital output.
+- Arduino processes both sensor values and controls LEDs and buzzer.
+
+Alert Levels:
+
+Condition| Output
+Gas < 30% and no flame| Green LED ON (SAFE)
+Gas 30–60%| Yellow LED + Slow Beep (WARNING)
+Gas > 60% or Flame detected| Red LED + Continuous Alarm (DANGER)
+
+---
+
+✅ Expected Output
+
+Serial Monitor displays:
+
+GAS: 20% | FLAME: NONE | STATUS: SAFE
 
 GAS: 45% | FLAME: NONE | STATUS: WARNING
 
 GAS: 80% | FLAME: NONE | STATUS: DANGER
 
-GAS: 20% | FLAME: DETECTED | STATUS: DANGER
+GAS: 25% | FLAME: DETECTED | STATUS: DANGER
 
-## Features
-- Dual sensor safety monitoring
-- Independent gas and flame detection
-- Three-level alert system
-- Real-time Serial Monitor updates
-- Non-blocking buzzer control using millis()
+LED and buzzer behavior:
 
-## Future Improvements
-- Add a silence button
-- Send mobile notifications
-- Add IoT cloud monitoring
+- 🟢 Green LED → Safe condition
+- 🟡 Yellow LED + slow beep → Warning condition
+- 🔴 Red LED + continuous buzzer → Danger condition
+
+---
+
+⚠ Notes
+
+- MQ-2 sensor requires 1–2 minutes warm-up time after power ON.
+- Flame sensor works on active-low logic:
+  - LOW = Flame detected
+  - HIGH = No flame detected
+
+---
