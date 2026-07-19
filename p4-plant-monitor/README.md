@@ -1,6 +1,6 @@
 # Smart Plant Monitoring & Automatic Watering System  
 
-## Project Overview
+## Project Overview 
 This project is an IoT-based Smart Plant Monitoring System using ESP32. It monitors soil moisture, temperature, and humidity, displays the readings on an OLED display, and automatically controls a water pump (simulated using a relay and LED). A manual override button allows watering for 5 seconds.
 
 ---
