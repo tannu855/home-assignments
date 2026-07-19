@@ -1,111 +1,84 @@
-🔥 Gas & Fire Safety Alert System
+# Project 2: Gas & Fire Safety Alert System
 
-📌 Project Description
+## Overview
+This project detects gas leaks and fire using an MQ-2 Gas Sensor and a Flame Sensor. It provides visual and sound alerts with different safety levels.
 
-This project is a dual-sensor safety alert system built using Arduino Uno. It detects gas leakage using an MQ-2 gas sensor and fire/flame detection using a flame sensor. The system provides three alert levels using LEDs and a buzzer.
-
----
-
-🛠 Components Used
-
+## Components Used
 - Arduino Uno R3
 - MQ-2 Gas Sensor
 - Flame Sensor
 - Active Buzzer
-- Green LED
-- Yellow LED
 - Red LED
+- Yellow LED
+- Green LED
 - 220Ω Resistors
 - Breadboard
 - Jumper Wires
-- USB Cable
 
----
+## Wiring Summary
 
-🔌 Wiring Summary
+### MQ-2 Gas Sensor
+- VCC → 5V
+- GND → GND
+- AOUT → A0
 
-MQ-2 Gas Sensor
+### Flame Sensor
+- VCC → 5V
+- GND → GND
+- DO → D7
+- AO → A1 (optional)
 
-Sensor Pin| Arduino Pin
-VCC| 5V
-GND| GND
-AOUT| A0
+### LEDs
+- Green LED → D10
+- Yellow LED → D11
+- Red LED → D12
 
-Flame Sensor
+### Buzzer
+- Positive → D9
+- Negative → GND
 
-Sensor Pin| Arduino Pin
-VCC| 5V
-GND| GND
-DO| D7
-AO| A1 (Optional)
+## How to Run
 
-LED Connections
+1. Upload the Arduino code.
+2. Power the Arduino.
+3. Wait about 2 minutes for the MQ-2 sensor to warm up.
+4. Open the Serial Monitor (9600 baud).
+5. Test the gas sensor using LPG/smoke.
+6. Test the flame sensor using a lighter or torch.
+7. Observe LED, buzzer, and Serial Monitor output.
 
-Component| Arduino Pin
-Green LED| D10
-Yellow LED| D11
-Red LED| D12
+## Expected Output
 
-Buzzer
+- **SAFE**
+  - Green LED ON
+  - Buzzer OFF
 
-Buzzer Pin| Arduino Pin
-Positive (+)| D9
-Negative (-)| GND
+- **WARNING**
+  - Yellow LED ON
+  - Slow beeping buzzer
 
----
+- **GAS DANGER**
+  - Red LED ON
+  - Continuous buzzer
 
-▶️ How to Run
+- **FIRE DANGER**
+  - Red LED ON
+  - Fast beeping buzzer
 
-1. Connect all components according to the wiring diagram.
-2. Open the Arduino IDE.
-3. Select Arduino Uno board and correct COM port.
-4. Upload the "gas_fire_alert.ino" code.
-5. Power ON the Arduino.
-6. Wait for MQ-2 sensor warm-up (1–2 minutes).
-7. Open Serial Monitor with 9600 baud rate to view sensor status.
+- **GAS + FIRE DANGER**
+  - Red LED ON
+  - Combined alarm pattern
 
----
+## Serial Monitor Example
 
-⚙ Working
+```
+Gas Raw: 14 | GAS: 1% | FLAME: NONE | STATUS: SAFE
 
-- MQ-2 sensor reads gas concentration and converts it into percentage (0–100%).
-- Flame sensor detects fire using active-low digital output.
-- Arduino processes both sensor values and controls LEDs and buzzer.
+Gas Raw: 15 | GAS: 1% | FLAME: DETECTED | STATUS: FIRE DANGER
+```
 
-Alert Levels:
+## Notes
 
-Condition| Output
-Gas < 30% and no flame| Green LED ON (SAFE)
-Gas 30–60%| Yellow LED + Slow Beep (WARNING)
-Gas > 60% or Flame detected| Red LED + Continuous Alarm (DANGER)
-
----
-
-✅ Expected Output
-
-Serial Monitor displays:
-
-GAS: 20% | FLAME: NONE | STATUS: SAFE
-
-GAS: 45% | FLAME: NONE | STATUS: WARNING
-
-GAS: 80% | FLAME: NONE | STATUS: DANGER
-
-GAS: 25% | FLAME: DETECTED | STATUS: DANGER
-
-LED and buzzer behavior:
-
-- 🟢 Green LED → Safe condition
-- 🟡 Yellow LED + slow beep → Warning condition
-- 🔴 Red LED + continuous buzzer → Danger condition
-
----
-
-⚠ Notes
-
-- MQ-2 sensor requires 1–2 minutes warm-up time after power ON.
-- Flame sensor works on active-low logic:
-  - LOW = Flame detected
-  - HIGH = No flame detected
-
----
+- MQ-2 requires 1–2 minutes of warm-up after power-on.
+- The flame sensor is active-low, so LOW means flame detected.
+- The buzzer uses `millis()` for non-blocking alert patterns.
