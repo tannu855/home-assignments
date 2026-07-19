@@ -1,5 +1,5 @@
 # Project 2: Gas & Fire Safety Alert System
-
+ 
 ## Overview
 This project detects gas leaks and fire using an MQ-2 Gas Sensor and a Flame Sensor. It provides visual and sound alerts with different safety levels.
 
