@@ -1,5 +1,5 @@
 const int gasPin = A0;
-const int flamePin = 7;
+const int flamePin = 7; 
 
 const int buzzer = 9;
 const int greenLED = 10;
