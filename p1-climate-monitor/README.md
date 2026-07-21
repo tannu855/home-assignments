@@ -4,7 +4,7 @@ Objective
 
 Build a smart room climate monitoring system using ESP32, DHT sensor, OLED display, LEDs, and a buzzer. The system continuously measures temperature and humidity, displays the readings on an OLED screen, and alerts the user when the room becomes too hot or humid.
 
-Components Used
+Components Used 
 
 - ESP32 Dev Board
 - DHT Temperature & Humidity Sensor
