@@ -56,3 +56,6 @@ Once we have the adjusted sea-level pressure, our code watches how it changes ov
 * **Pressure is RISING (^):** The air is getting heavier and more dense, which usually pushes clouds away. Expect **CLEAR** weather! (Green LED turns on)
 * **Pressure is FALLING (v):** The air is getting lighter, allowing clouds and storms to roll in. Expect **RAIN**! (Red LED turns on)
 * **Pressure is STABLE (-):** No big changes are happening right now.
+
+Wokwi Simulation:
+https://wokwi.com/projects/470263569034580993
