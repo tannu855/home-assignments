@@ -1,132 +1,184 @@
 #include <Wire.h>
-#include <Adafruit_BMP085.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP085_U.h>
+#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-Adafruit_SSD1306 screen(128, 64, &Wire, -1);
-Adafruit_BMP085 sensor;
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int potPin = A0;
-int greenLed = 8;
-int redLed = 9;
+Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 
-float history[6];
-String trend = "CALC...";
-float temp = 0;
-float seaLevel = 0;
-float alt = 0;
+#define POT_PIN A0
+#define GREEN_LED 8
+#define RED_LED 9
 
-int loopCount = 0;
+unsigned long lastLogTime = 0;
+unsigned long lastDisplayTime = 0;
+const unsigned long LOG_INTERVAL = 30000;    
+const unsigned long DISPLAY_INTERVAL = 5000; 
+
+float pressureLog[24];
+int logIndex = 0;
+bool bufferFull = false;
+
+bool showPage1 = true;
+String currentTrend = "CALC...";
+float currentTemp = 0;
+float currentPressure_hPa = 0;
+float seaLevelPressure_hPa = 0;
+float localAltOffset = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); 
   
-  pinMode(greenLed, OUTPUT);
-  pinMode(redLed, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
   
-  sensor.begin();
-  screen.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  
-  screen.clearDisplay();
-  screen.setTextColor(WHITE);
-  screen.setTextSize(1);
-  screen.setCursor(0, 20);
-  screen.println("Weather Station");
-  screen.println("Starting up...");
-  screen.display();
-  delay(2000);
-
-  for (int i = 0; i < 6; i++) {
-    history[i] = 0;
+  if (!bmp.begin()) {
+    Serial.println(F("BMP180/BMP085 not found! Check wiring."));
+    while (1); 
   }
+  
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("OLED failed"));
+    for(;;);
+  }
+  
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+  display.setTextSize(1);
+  display.setCursor(0, 20);
+  display.println(F("Weather Station"));
+  display.println(F("Initializing..."));
+  display.display();
+  
+  Serial.println(F("Time(s)\t| Temp(*C)\t| Alt(m)\t| Press(hPa)\t| Trend    \t| Diff(hPa)"));
+  Serial.println(F("-----------------------------------------------------------------------------------"));
+
+  delay(2000);
+  logData(); 
 }
 
 void loop() {
-  if (loopCount == 0) {
-    checkWeather();
+  unsigned long currentMillis = millis();
+
+  if (currentMillis - lastLogTime >= LOG_INTERVAL) {
+    lastLogTime = currentMillis;
+    logData();
   }
 
-  showScreen1();
-  delay(5000);
-
-  showScreen2();
-  delay(5000);
-
-  loopCount++;
-  if (loopCount >= 3) {
-    loopCount = 0;
+  if (currentMillis - lastDisplayTime >= DISPLAY_INTERVAL) {
+    lastDisplayTime = currentMillis;
+    showPage1 = !showPage1;
+    updateDisplay();
   }
 }
 
-void checkWeather() {
-  int pot = analogRead(potPin);
-  alt = (pot / 1023.0) * 2000.0;
+void logData() {
+  int potValue = analogRead(POT_PIN);
+  localAltOffset = (potValue / 1023.0) * 2000.0;
+
+  sensors_event_t event;
+  bmp.getEvent(&event);
   
-  temp = sensor.readTemperature();
-  float pressure = sensor.readPressure();
-  seaLevel = sensor.readSealevelPressure(alt) / 100.0;
-  
-  for (int i = 0; i < 5; i++) {
-    history[i] = history[i + 1];
+  if (event.pressure) {
+    currentPressure_hPa = event.pressure; 
+    bmp.getTemperature(&currentTemp);
   }
-  history[5] = seaLevel;
+
+  seaLevelPressure_hPa = bmp.seaLevelForAltitude(localAltOffset, currentPressure_hPa);
+
+  pressureLog[logIndex] = seaLevelPressure_hPa;
   
-  if (history[0] != 0) {
-    float diff = history[5] - history[0];
+  float oldestPressure;
+  if (bufferFull) {
+    oldestPressure = pressureLog[(logIndex + 1) % 24]; 
+  } else {
+    oldestPressure = pressureLog[0]; 
+  }
+
+  float pressureDiff = seaLevelPressure_hPa - oldestPressure;
+
+  if (pressureDiff > 0.5) {
+    currentTrend = "RISING ^";
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+  } else if (pressureDiff < -0.5) {
+    currentTrend = "FALLING v";
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED, HIGH);
+  } else {
+    currentTrend = "STABLE -";
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+  }
+
+  Serial.print(millis() / 1000);
+  Serial.print(F("\t| "));
+  Serial.print(currentTemp, 2);
+  Serial.print(F("\t\t| "));
+  Serial.print(localAltOffset, 0);
+  Serial.print(F("\t\t| "));
+  Serial.print(seaLevelPressure_hPa, 2);
+  Serial.print(F("\t| "));
+  Serial.print(currentTrend);
+  
+  if (currentTrend.length() < 9) {
+    Serial.print(F("\t| "));
+  } else {
+    Serial.print(F(" \t| "));
+  }
+  
+  Serial.println(pressureDiff, 2);
+
+  logIndex++;
+  if (logIndex >= 24) {
+    logIndex = 0;
+    bufferFull = true;
+  }
+}
+
+void updateDisplay() {
+  display.clearDisplay();
+  
+  if (showPage1) {
+    display.setCursor(0, 0);
+    display.setTextSize(2);
+    display.print(currentTemp, 1);
+    display.println(F(" C"));
     
-    if (diff > 0.5) {
-      trend = "RISING ^";
-      digitalWrite(greenLed, HIGH);
-      digitalWrite(redLed, LOW);
-    } else if (diff < -0.5) {
-      trend = "FALLING v";
-      digitalWrite(greenLed, LOW);
-      digitalWrite(redLed, HIGH);
+    display.setTextSize(1);
+    display.setCursor(0, 25);
+    display.print(F("SL Press: "));
+    display.print(seaLevelPressure_hPa, 1); 
+    display.println(F(" hPa"));
+    
+    display.setCursor(0, 40);
+    display.print(F("Alt Set: "));
+    display.print(localAltOffset, 0);
+    display.println(F(" m"));
+  } else {
+    display.setCursor(0, 0);
+    display.setTextSize(1);
+    display.println(F("WEATHER TREND:"));
+    
+    display.setCursor(0, 20);
+    display.setTextSize(2);
+    display.println(currentTrend);
+    
+    display.setCursor(0, 45);
+    display.setTextSize(1);
+    if (currentTrend.indexOf("RISING") >= 0) {
+      display.println(F("Predict: CLEAR"));
+    } else if (currentTrend.indexOf("FALLING") >= 0) {
+      display.println(F("Predict: RAIN"));
     } else {
-      trend = "STABLE -";
-      digitalWrite(greenLed, HIGH);
-      digitalWrite(redLed, LOW);
+      display.println(F("Predict: NO CHANGE"));
     }
   }
-}
-
-void showScreen1() {
-  screen.clearDisplay();
-  screen.setCursor(0, 0);
-  screen.setTextSize(2);
-  screen.print(temp, 1);
-  screen.println(" C");
   
-  screen.setTextSize(1);
-  screen.setCursor(0, 25);
-  screen.print("SL Press: ");
-  screen.print(seaLevel, 1); 
-  screen.println(" hPa");
-  
-  screen.setCursor(0, 40);
-  screen.print("Alt Set: ");
-  screen.print(alt, 0);
-  screen.println(" m");
-  screen.display();
-}
-
-void showScreen2() {
-  screen.clearDisplay();
-  screen.setCursor(0, 0);
-  screen.setTextSize(1);
-  screen.println("WEATHER TREND:");
-  
-  screen.setCursor(0, 20);
-  screen.setTextSize(2);
-  screen.println(trend);
-  
-  screen.setCursor(0, 45);
-  screen.setTextSize(1);
-  if (trend == "RISING ^") {
-    screen.println("Predict: CLEAR");
-  } else if (trend == "FALLING v") {
-    screen.println("Predict: RAIN");
-  } else {
-    screen.println("Predict: NO CHANGE");
-  }
-  screen.display();
+  display.display();
 }
