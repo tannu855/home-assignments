@@ -100,4 +100,7 @@ How to Run
 5. Open the Serial Monitor at 115200 baud.
 6. Operate the potentiometer and buttons to test the system.
 
+7. Google Drive Link
+8. https://drive.google.com/file/d/18yB702GCOT0TgCgu4dzRbn76K4e_KV5N/view?usp=drivesdk
+
 
