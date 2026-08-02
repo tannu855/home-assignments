@@ -1,19 +1,34 @@
 Drone Assignment
 
-Student Details
+Student Information
 
 - Name: Tannu
-- Course: B.Tech (Electrical Engineering)
-- Assignment: Fundamentals of Drones and UAV Systems
+- Assignment Title: Fundamentals of Drones and UAV Systems
 
-Description
+Project Overview
 
-This repository contains my Drone Assignment prepared as part of my coursework. The assignment covers the fundamentals of drones and UAV systems, including their history, applications, types, working principles, components, and related concepts.
+This repository contains my Drone Assignment prepared as part of my academic coursework. The assignment provides a comprehensive overview of drones and Unmanned Aerial Vehicles (UAVs), including their definition, history, evolution, types, components, working principles, and real-world applications.
 
-Files Included
+Topics Covered
 
-- "Drone_Assignment.pdf" – Complete assignment report.
+- Introduction to Drones and UAVs
+- History and Evolution of Drones
+- Applications of Drones
+- Types of UAVs
+- Difference between UAV and Drone
+- Fixed-Wing vs. Multirotor Drones
+- Quadcopter vs. Hexacopter
+- Flight Principles of a Quadcopter
+- Major Drone Components
+- Labeled Diagrams and Illustrations
+- Conclusion and References
 
-Submitted By
+Repository Contents
 
-Tannu
+- Drone_Assignment.pdf – Complete assignment report with diagrams and explanations.
+- README.md – Overview of the assignment and repository.
+
+Purpose
+
+The objective of this assignment is to understand the fundamentals of drone technology, its operation, practical applications, and the key concepts involved in modern UAV systems.
+
